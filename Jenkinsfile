@@ -1,33 +1,30 @@
 pipeline {
     agent any
-    
+
     stages {
-        stage('Copy Test Files') {
+        stage('Setup Python Env') {
             steps {
                 sh '''
-                    echo "Copying test files to Python container..."
-                    docker exec python-runner rm -rf /app/tests/
-                    docker cp . python-runner:/app/
+                python3 -m venv venv
+                . venv/bin/activate
+                pip install -r requirements.txt
                 '''
             }
         }
-        
-        stage('Install Dependencies') {
-            steps {
-                sh 'docker exec python-runner pip install requests pytest allure-pytest'
-            }
-        }
 
-        stage('Run Tests') {
+        stage('Run API Tests') {
             steps {
-                sh 'docker exec python-runner pytest --maxfail=1 --disable-warnings -q'
+                sh '''
+                . venv/bin/activate
+                pytest --maxfail=1 --disable-warnings -q
+                '''
             }
         }
     }
 
     post {
         always {
-            archiveArtifacts artifacts: 'reports/*.html', allowEmptyArchive: true
+            archiveArtifacts artifacts: '**/reports/*.html', allowEmptyArchive: true
         }
     }
 }
