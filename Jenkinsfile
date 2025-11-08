@@ -2,12 +2,18 @@ pipeline {
     agent any
 
     stages {
-        stage('Setup Python Env') {
+        stage('Prepare Test Environment') {
             steps {
                 sh '''
-                python3 -m venv venv
-                . venv/bin/activate
-                pip install -r requirements.txt
+                docker cp . python-runner:/workspace
+                '''
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                docker exec python-runner pip install -r /workspace/requirements.txt
                 '''
             }
         }
@@ -15,8 +21,7 @@ pipeline {
         stage('Run API Tests') {
             steps {
                 sh '''
-                . venv/bin/activate
-                pytest --maxfail=1 --disable-warnings -q
+                docker exec -w /workspace python-runner python -m pytest --maxfail=1 --disable-warnings -q
                 '''
             }
         }
