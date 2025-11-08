@@ -1,35 +1,33 @@
 pipeline {
     agent any
-
+    
     stages {
-        stage('Debug Test Files') {
+        stage('Copy Test Files') {
             steps {
                 sh '''
-                echo "=== DEBUG START ==="
-                echo "Current directory:"
-                pwd
-                echo "Files in directory:"
-                ls -la
-                echo "Test files:"
-                find . -name "*test*" -type f
-                echo "Content of test_get_user.py:"
-                cat test_get_user.py || echo "File not found!"
-                echo "=== DEBUG END ==="
+                    echo "Copying test files to Python container..."
+                    docker exec python-runner mkdir -p /app
+                    docker cp . python-runner:/app/
                 '''
             }
         }
         
-        stage('Run API Tests') {
+        stage('Install Dependencies') {
             steps {
-                sh '''
-                docker run --rm \
-                  -v $(pwd):/workspace \
-                  -w /workspace \
-                  --network jenkins-net \
-                  python:3.12-slim \
-                  sh -c "pip install pytest requests && python -m pytest --maxfail=1 --disable-warnings -v"
-                '''
+                sh 'docker exec python-runner pip install -r /app/requirements.txt'
             }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh 'docker exec -w /app python-runner python -m pytest --maxfail=1 --disable-warnings -v'
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: '**/reports/*.html', allowEmptyArchive: true
         }
     }
 }
