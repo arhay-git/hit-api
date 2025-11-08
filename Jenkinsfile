@@ -5,7 +5,6 @@ pipeline {
         stage('Run API Tests') {
             steps {
                 sh '''
-                # Run tests in isolated Python container
                 docker run --rm \
                   -v $(pwd):/workspace \
                   -w /workspace \
