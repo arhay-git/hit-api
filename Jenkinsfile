@@ -4,9 +4,7 @@ pipeline {
     stages {
         stage('Copy Test Files') {
             steps {
-                sh '''
-                    echo "Copying test files to Python container..."
-                    docker exec python-runner mkdir -p /app
+                sh '''docker exec python-runner mkdir -p /app
                     docker cp . python-runner:/app/
                 '''
             }
