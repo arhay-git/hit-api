@@ -2,17 +2,17 @@ pipeline {
     agent any
 
     stages {
-        stage('Run API Tests in Isolated Container') {
+        stage('Run API Tests') {
             steps {
-                script {
-                    // Docker akan otomatis available via Docker socket
-                    docker.image('python:3.12-slim').inside("--network jenkins-net") {
-                        sh '''
-                        pip install pytest requests
-                        python -m pytest --maxfail=1 --disable-warnings -q
-                        '''
-                    }
-                }
+                sh '''
+                # Run tests in isolated Python container
+                docker run --rm \
+                  -v $(pwd):/workspace \
+                  -w /workspace \
+                  --network jenkins-net \
+                  python:3.12-slim \
+                  sh -c "pip install pytest requests && python -m pytest --maxfail=1 --disable-warnings -q"
+                '''
             }
         }
     }
