@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.12-slim'
-            args '-v /var/jenkins_home:/var/jenkins_home'
-        }
-    }
+    agent any
 
     stages {
         stage('Setup Python Env') {
