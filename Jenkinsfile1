@@ -1,7 +1,7 @@
 pipeline {
     agent any
     
-    stages {
+    stages {pip
         stage('Copy Test Files') {
             steps {
                 sh '''
