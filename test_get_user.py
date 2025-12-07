@@ -3,7 +3,7 @@ import requests
 
 headers = {
     "Content-Type": "application/json",
-    "x-api-key": "reqres-free-v1"
+    "x-api-key": "reqres_e2f07874d8a140329ddf0b1137dfbd27"
 }
 
 # @pytest.mark.parametrize('page', [1, 2, 3])
